@@ -1,4 +1,3 @@
-// ✅ COMPLETE FIXED jobs.js - READY TO PASTE & 100% VERCEL READY
 class JobTracker {
     constructor() {
         // LIVE BACKEND BASE URL

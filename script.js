@@ -1,8 +1,429 @@
+// const btnUpload = document.getElementById("btnUpload");
+// const fileInput = document.getElementById("fileInput");
+// // const jobDesc = document.getElementById("jobDesc");
+// const jobDesc = document.getElementById("jobDesc");
+
+
+// const resultBox = document.getElementById("result");
+
+// // Loader
+// const loader = document.createElement("div");
+// loader.id = "loading";
+// loader.style.textAlign = "center";
+// loader.style.fontWeight = "bold";
+// loader.style.color = "#4f46e5";
+// loader.style.margin = "10px 0";
+// loader.innerText = "Analyzing Resume... Please wait...";
+// resultBox.parentNode.insertBefore(loader, resultBox);
+
+// btnUpload.addEventListener("click", async () => {
+//     if (!fileInput.files[0]) return alert("Please select a PDF file");
+    
+//     const formData = new FormData();
+//     formData.append("file", fileInput.files[0]);
+//     formData.append("jobDesc", jobDesc.value || "");
+
+//     loader.style.display = "block";
+//     resultBox.innerHTML = "";
+
+//     try {
+//         const res = await fetch("/upload", { method: "POST", body: formData });
+//         const data = await res.json();
+
+//         loader.style.display = "none";
+
+//         if (!data.success) return alert("Error: " + data.message);
+
+//         let ai;
+//         try {
+//             // Sometimes AI sends JSON wrapped in text, so we extract JSON block
+//             // Regex code to find JSON object in the AI response
+//             const jsonMatch = data.aiAnalysis.match(/\{[\s\S]*\}/);
+//             ai = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+//         } catch {
+//             ai = null;
+//         }
+
+//         if (ai) {
+//             resultBox.innerHTML = `
+//                 <div class="card mb-3 p-3">
+//                     <h4>Extracted Resume Text</h4>
+//                     <pre style="white-space: pre-wrap;">${data.extractedText}</pre>
+//                 </div>
+
+//                 <div class="d-flex flex-wrap gap-3 mb-3">
+//                     <div class="card p-3 flex-grow-1" style="min-width: 200px;">
+//                         <h5>Resume Score</h5>
+//                         <p>${ai["Resume Score"] || "N/A"}/100</p>
+//                     </div>
+//                     <div class="card p-3 flex-grow-1" style="min-width: 200px;">
+//                         <h5>ATS Score</h5>
+//                         <p>${ai["ATS Score"] || "N/A"}</p>
+//                     </div>
+//                     <div class="card p-3 flex-grow-1" style="min-width: 200px;">
+//                         <h5>Match Percentage</h5>
+//                         <p>${ai["Match Percentage"] || "N/A"}%</p>
+//                     </div>
+//                 </div>
+
+//                 <div class="card mb-3 p-3">
+//                     <h5>Missing Skills</h5>
+//                     <ul>${(ai["Missing Skills"] || []).map(skill => `<li>${skill}</li>`).join("")}</ul>
+//                 </div>
+
+//                 <div class="card mb-3 p-3">
+//                     <h5>Suggestions</h5>
+//                     <ul>${(ai["Suggestions"] || []).map(s => `<li>${s}</li>`).join("")}</ul>
+//                 </div>
+
+//                 <div class="card mb-3 p-3">
+//                     <h5>Improved Resume</h5>
+//                     <pre style="white-space: pre-wrap;">${ai["Improved Resume Text"] || ""}</pre>
+//                 </div>
+//             `;
+//         } else {
+//             // fallback: show raw AI text
+//             resultBox.innerHTML = `
+//                 <div class="card p-3 mb-3">
+//                     <h4>Extracted Resume Text</h4>
+//                     <pre style="white-space: pre-wrap;">${data.extractedText}</pre>
+//                 </div>
+//                 <div class="card p-3">
+//                     <h4>AI Analysis (Raw Text)</h4>
+//                     <pre style="white-space: pre-wrap;">${data.aiAnalysis}</pre>
+//                 </div>
+//             `;
+//         }
+
+//     } catch (err) {
+//         loader.style.display = "none";
+//         console.error(err);
+//         alert("Error analyzing resume. Check console for details.");
+//     }
+// });
+
+
+
+// // public/script.js
+// const btnUpload = document.getElementById("btnUpload");
+// const fileInput = document.getElementById("fileInput");
+// const jobDesc = document.getElementById("jobDesc");
+// const resultBox = document.getElementById("result");
+// const loading = document.getElementById("loading");
+
+// const emailInput = document.getElementById("email");
+// const passwordInput = document.getElementById("password");
+// const btnLogin = document.getElementById("btnLogin");
+// const btnRegister = document.getElementById("btnRegister");
+// const authStatus = document.getElementById("authStatus");
+
+// function setToken(token) {
+//   localStorage.setItem("token", token);
+// }
+// function getToken() {
+//   return localStorage.getItem("token");
+// }
+
+// btnRegister.addEventListener("click", async () => {
+//   try {
+//     const res = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: emailInput.value, password: passwordInput.value }) });
+//     const data = await res.json();
+//     if (data.token) {
+//       setToken(data.token);
+//       authStatus.innerText = "Registered & logged in";
+//     } else {
+//       authStatus.innerText = data.message || "Register failed";
+//     }
+//   } catch (err) { authStatus.innerText = "Error"; console.error(err); }
+// });
+
+// btnLogin.addEventListener("click", async () => {
+//   try {
+//     const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: emailInput.value, password: passwordInput.value }) });
+//     const data = await res.json();
+//     if (data.token) {
+//       setToken(data.token);
+//       authStatus.innerText = "Logged in";
+//     } else {
+//       authStatus.innerText = data.message || "Login failed";
+//     }
+//   } catch (err) { authStatus.innerText = "Error"; console.error(err); }
+// });
+
+// btnUpload.addEventListener("click", async () => {
+//   if (!fileInput.files[0]) return alert("Select a PDF file");
+//   const token = getToken();
+//   if (!token) return alert("Please login first (register/login fields above).");
+
+//   loading.style.display = "block";
+//   resultBox.innerHTML = "";
+
+//   const fd = new FormData();
+//   fd.append("file", fileInput.files[0]);
+//   fd.append("jobDesc", jobDesc.value || "");
+
+//   try {
+//     const res = await fetch("/api/resume/analyze", {
+//       method: "POST",
+//       headers: { Authorization: "Bearer " + token },
+//       body: fd
+//     });
+//     const data = await res.json();
+//     loading.style.display = "none";
+
+//     if (!data.success) {
+//       resultBox.innerText = "Error: " + (data.message || JSON.stringify(data));
+//       return;
+//     }
+
+//     const ai = data.analysis;
+//     // Show nicely
+//     resultBox.innerHTML = `
+//       <div class="card">
+//         <h4>Resume Score</h4><p>${ai.resumeScore || "N/A"}</p>
+//         <h4>ATS Score</h4><p>${ai.atsScore || "N/A"}</p>
+//         <h4>Match %</h4><p>${ai.matchPercentage || "N/A"}%</p>
+//       </div>
+//       <div class="card">
+//         <h4>Missing Skills</h4><ul>${(ai.missingSkills || []).map(s => `<li>${s}</li>`).join("")}</ul>
+//       </div>
+//       <div class="card">
+//         <h4>Suggestions</h4><ul>${(ai.suggestions || []).map(s => `<li>${s}</li>`).join("")}</ul>
+//       </div>
+//       <div class="card">
+//         <h4>Improved Resume Text</h4><pre>${ai.improvedText || ""}</pre>
+//       </div>
+//       <div class="card">
+//         <h4>Stored File</h4>
+//         <p>${data.saved?.fileUrl ? `<a href="${data.saved.fileUrl}" target="_blank">Open file</a>` : "File not uploaded"}</p>
+//       </div>
+//     `;
+//   } catch (err) {
+//     loading.style.display = "none";
+//     console.error(err);
+//     alert("Upload/analysis failed. See console.");
+//   }
+// });
+
+// function protectPage() {
+//   const token = localStorage.getItem("token");
+
+//   if (!token) {
+//     alert("Please login first");
+//     window.location.href = "../login.html";
+//   }
+// }
+
+// function logout() {
+//   localStorage.removeItem("token");
+//   window.location.href = "../login.html";
+// }
+
+
+// // --------- DOM CACHE -----------
+// const $ = (id) => document.getElementById(id);
+
+// const nameInput = $("name");
+// const emailInput = $("email");
+// const passwordInput = $("password");
+// const authStatus = $("authStatus");
+// const btnLogin = $("btnLogin");
+// const btnRegister = $("btnRegister");
+
+// // ----------- TOKEN MANAGEMENT -----------
+// const setToken = (token) => localStorage.setItem("token", token);
+// const getToken = () => localStorage.getItem("token");
+
+// // ----------- COMMON API WRAPPER -----------
+// async function apiRequest(endpoint, method, bodyObj) {
+//   try {
+//     const res = await fetch(`/api/auth/${endpoint}`, {
+//       method,
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(bodyObj)
+//     });
+
+//     const data = await res.json();
+//     if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+//     return data;
+//   } catch (err) {
+//     throw new Error(err.message || "Network error");
+//   }
+// }
+
+// // ----------- FORM VALIDATOR -----------
+// function validateInputs({ nameRequired = false } = {}) {
+//   const email = emailInput.value.trim();
+//   const password = passwordInput.value.trim();
+//   const name = nameInput?.value?.trim();
+
+//   if (nameRequired && !name) return { valid: false, message: "Name is required" };
+//   if (!email) return { valid: false, message: "Email is required" };
+//   if (!password) return { valid: false, message: "Password is required" };
+
+//   return { valid: true };
+// }
+
+// // ----------- REGISTER FUNCTION -----------
+// async function registerUser() {
+//   const validation = validateInputs({ nameRequired: true });
+//   if (!validation.valid) return showMessage(validation.message, true);
+
+//   try {
+//     const data = await apiRequest("register", "POST", {
+//       name: nameInput.value,
+//       email: emailInput.value,
+//       password: passwordInput.value,
+//     });
+
+//     setToken(data.token);
+//     showMessage("Registration successful! Redirecting...");
+//     alert("Registration successful! Please login.");
+//     redirectToLogin();
+
+//   } catch (err) {
+//     showMessage(err.message, true);
+//   }
+// }
+
+// // ----------- LOGIN FUNCTION -----------
+// async function loginUser() {
+//   const validation = validateInputs();
+//   if (!validation.valid) return showMessage(validation.message, true);
+
+//   try {
+//     const data = await apiRequest("login", "POST", {
+//       email: emailInput.value,
+//       password: passwordInput.value,
+//     });
+
+//     setToken(data.token);
+//     showMessage("Login successful! Redirecting...");
+//     redirectToDashboard();
+
+//   } catch (err) {
+//     showMessage(err.message, true);
+//   }
+// }
+
+// // ----------- UI HELPER -----------
+// function showMessage(msg, isError = false) {
+//   if (authStatus) {
+//     authStatus.innerText = msg;
+//     authStatus.style.color = isError ? "red" : "green";
+//   } else {
+//     alert(msg);
+//   }
+// }
+
+// // ----------- REDIRECT -----------
+// function redirectToDashboard() {
+//   setTimeout(() => {
+//     window.location.href = "/dashboard";
+//   }, 500);
+// }
+
+// function redirectToLogin() {
+//   setTimeout(() => {
+//     window.location.href = "/login";
+//   }, 500);
+// }
+
+// // ----------- EVENT LISTENERS -----------
+// btnRegister?.addEventListener("click", registerUser);
+// btnLogin?.addEventListener("click", loginUser);
+
+
+
+
+
+
+// // --------- DOM CACHE -----------
+// const $ = (id) => document.getElementById(id);
+
+// const nameInput = $("name");
+// const emailInput = $("email");
+// const passwordInput = $("password");
+// const authStatus = $("authStatus");
+// const registerForm = $("registerForm");  // ✅ FORM SELECT KARO
+
+// // ----------- TOKEN MANAGEMENT -----------
+// const setToken = (token) => localStorage.setItem("token", token);
+// const getToken = () => localStorage.getItem("token");
+
+// // ----------- COMMON API WRAPPER -----------
+// async function apiRequest(endpoint, method, bodyObj) {
+//   try {
+//     const res = await fetch(`/api/auth/${endpoint}`, {
+//       method,
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(bodyObj)
+//     });
+
+//     const data = await res.json();
+//     if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+//     return data;
+//   } catch (err) {
+//     throw new Error(err.message || "Network error");
+//   }
+// }
+
+// // ----------- FORM VALIDATOR -----------
+// function validateInputs({ nameRequired = false } = {}) {
+//   const email = emailInput.value.trim();
+//   const password = passwordInput.value.trim();
+//   const name = nameInput?.value?.trim();
+
+//   if (nameRequired && !name) return { valid: false, message: "Name is required" };
+//   if (!email) return { valid: false, message: "Email is required" };
+//   if (!password || password.length < 6) return { valid: false, message: "Password must be at least 6 characters" };  // ✅ IMPROVED
+
+//   return { valid: true };
+// }
+
+// // ----------- REGISTER FUNCTION -----------
+// async function registerUser(e) {  // ✅ EVENT PARAMETER
+//   e.preventDefault();  // ✅ FORM SUBMIT BLOCK
+  
+//   const validation = validateInputs({ nameRequired: true });
+//   if (!validation.valid) return showMessage(validation.message, true);
+
+//   try {
+//     const data = await apiRequest("register", "POST", {
+//       name: nameInput.value,
+//       email: emailInput.value,
+//       password: passwordInput.value,
+//     });
+
+//     setToken(data.token);
+//     showMessage("Registration successful! Redirecting...", false);
+//     setTimeout(() => {
+//       window.location.href = "/login/";
+//     }, 1500);
+
+//   } catch (err) {
+//     showMessage(err.message, true);
+//   }
+// }
+
+// // ----------- UI HELPER -----------
+// function showMessage(msg, isError = false) {
+//   if (authStatus) {
+//     authStatus.textContent = msg;  // ✅ textContent use karo
+//     authStatus.className = `status-message ${isError ? 'error' : 'success'}`;
+//   } else {
+//     alert(msg);
+//   }
+// }
+
+// // ----------- EVENT LISTENER ✅ FIXED --------
+// registerForm?.addEventListener("submit", registerUser);  // FORM SUBMIT PE LAGAO
+
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Register page loaded');
-    
-    // API Base URL - Backend Vercel deployment
-    const API_BASE = "https://ai-resume-analyzer-backend-nine.vercel.app/api";
     
     // DOM Elements
     const registerForm = document.getElementById('registerForm');
@@ -24,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Show toast notification
+    // Show toast (same as app)
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -39,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // Validate form inputs
+    // Validate form
     function validateForm() {
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
@@ -52,43 +473,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return { valid: true };
     }
     
-    // API Request with full backend URL + error debugging
+    // API Request
     async function apiRequest(endpoint, data) {
         try {
-            const url = `${API_BASE}/auth/${endpoint}`;
-            console.log('📡 Sending to:', url, data);
-            
-            const response = await fetch(url, {
+            console.log('📡 Sending to:', `/api/auth/${endpoint}`, data);
+            const response = await fetch(`/api/auth/${endpoint}`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
             
-            // Debug: Log raw response first
-            const responseText = await response.text();
-            console.log('📡 Raw response (first 200 chars):', responseText.substring(0, 200));
             console.log('📡 Response status:', response.status);
+            const result = await response.json();
             
-            // Check if response is JSON
             if (!response.ok) {
-                let errorMsg = `Server error: ${response.status}`;
-                try {
-                    const result = JSON.parse(responseText);
-                    errorMsg = result.message || result.error || errorMsg;
-                } catch (parseError) {
-                    console.error('❌ Non-JSON error response:', responseText);
-                    errorMsg = `Server error (${response.status}): ${responseText.substring(0, 100)}...`;
-                }
-                throw new Error(errorMsg);
+                throw new Error(result.message || `Server error: ${response.status}`);
             }
             
-            // Parse JSON response
-            const result = JSON.parse(responseText);
             return result;
-            
         } catch (error) {
             console.error('❌ API Error:', error);
             throw error;
@@ -101,19 +503,15 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('🎯 REGISTER BUTTON CLICKED!');
         
         // Button loading state
-        if (btnRegister) {
-            btnRegister.disabled = true;
-            btnRegister.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-        }
+        btnRegister.disabled = true;
+        btnRegister.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
         
         const validation = validateForm();
         if (!validation.valid) {
             showMessage(validation.message, true);
             showToast('❌ ' + validation.message, 'error');
-            if (btnRegister) {
-                btnRegister.disabled = false;
-                btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-            }
+            btnRegister.disabled = false;
+            btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
             return;
         }
         
@@ -133,26 +531,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
             
         } catch (error) {
-            console.error('❌ Registration failed:', error.message);
             showMessage(error.message, true);
             showToast('❌ ' + error.message, 'error');
         } finally {
-            if (btnRegister) {
-                btnRegister.disabled = false;
-                btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-            }
+            btnRegister.disabled = false;
+            btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
         }
     }
     
     // Attach event listener
-    if (registerForm && nameInput && emailInput && passwordInput) {
+    if (registerForm) {
         registerForm.addEventListener('submit', handleRegister);
         console.log('✅ Form submit listener attached');
     } else {
-        console.error('❌ Required DOM elements not found!');
-        console.log('registerForm:', !!registerForm);
-        console.log('nameInput:', !!nameInput);
-        console.log('emailInput:', !!emailInput);
-        console.log('passwordInput:', !!passwordInput);
+        console.error('❌ registerForm not found!');
     }
 });

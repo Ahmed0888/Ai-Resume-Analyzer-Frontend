@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Register page loaded');
     
+    // API Base URL - Backend Vercel deployment
+    const API_BASE = "https://ai-resume-analyzer-backend-nine.vercel.app/api";
+    
     // DOM Elements
     const registerForm = document.getElementById('registerForm');
     const nameInput = document.getElementById('name');
@@ -21,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Show toast (same as app)
+    // Show toast notification
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -36,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // Validate form
+    // Validate form inputs
     function validateForm() {
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
@@ -49,24 +52,43 @@ document.addEventListener('DOMContentLoaded', function() {
         return { valid: true };
     }
     
-    // API Request
+    // API Request with full backend URL + error debugging
     async function apiRequest(endpoint, data) {
         try {
-            console.log('📡 Sending to:', `/api/auth/${endpoint}`, data);
-            const response = await fetch(`/api/auth/${endpoint}`, {
+            const url = `${API_BASE}/auth/${endpoint}`;
+            console.log('📡 Sending to:', url, data);
+            
+            const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify(data)
             });
             
+            // Debug: Log raw response first
+            const responseText = await response.text();
+            console.log('📡 Raw response (first 200 chars):', responseText.substring(0, 200));
             console.log('📡 Response status:', response.status);
-            const result = await response.json();
             
+            // Check if response is JSON
             if (!response.ok) {
-                throw new Error(result.message || `Server error: ${response.status}`);
+                let errorMsg = `Server error: ${response.status}`;
+                try {
+                    const result = JSON.parse(responseText);
+                    errorMsg = result.message || result.error || errorMsg;
+                } catch (parseError) {
+                    console.error('❌ Non-JSON error response:', responseText);
+                    errorMsg = `Server error (${response.status}): ${responseText.substring(0, 100)}...`;
+                }
+                throw new Error(errorMsg);
             }
             
+            // Parse JSON response
+            const result = JSON.parse(responseText);
             return result;
+            
         } catch (error) {
             console.error('❌ API Error:', error);
             throw error;
@@ -79,15 +101,19 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('🎯 REGISTER BUTTON CLICKED!');
         
         // Button loading state
-        btnRegister.disabled = true;
-        btnRegister.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        if (btnRegister) {
+            btnRegister.disabled = true;
+            btnRegister.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        }
         
         const validation = validateForm();
         if (!validation.valid) {
             showMessage(validation.message, true);
             showToast('❌ ' + validation.message, 'error');
-            btnRegister.disabled = false;
-            btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            if (btnRegister) {
+                btnRegister.disabled = false;
+                btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            }
             return;
         }
         
@@ -107,19 +133,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
             
         } catch (error) {
+            console.error('❌ Registration failed:', error.message);
             showMessage(error.message, true);
             showToast('❌ ' + error.message, 'error');
         } finally {
-            btnRegister.disabled = false;
-            btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            if (btnRegister) {
+                btnRegister.disabled = false;
+                btnRegister.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            }
         }
     }
     
     // Attach event listener
-    if (registerForm) {
+    if (registerForm && nameInput && emailInput && passwordInput) {
         registerForm.addEventListener('submit', handleRegister);
         console.log('✅ Form submit listener attached');
     } else {
-        console.error('❌ registerForm not found!');
+        console.error('❌ Required DOM elements not found!');
+        console.log('registerForm:', !!registerForm);
+        console.log('nameInput:', !!nameInput);
+        console.log('emailInput:', !!emailInput);
+        console.log('passwordInput:', !!passwordInput);
     }
 });

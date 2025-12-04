@@ -1,9 +1,8 @@
+// ✅ COMPLETE FIXED jobs.js - READY TO PASTE & 100% VERCEL READY
 class JobTracker {
     constructor() {
         // LIVE BACKEND BASE URL
         this.API_BASE = "https://ai-resume-analyzer-backend-nine.vercel.app/api";
-
-        // Get REAL user ID from JWT token FIRST
         this.userId = this.getUserIdFromToken();
         console.log("👤 AUTHENTICATED USER ID:", this.userId);
 
@@ -33,18 +32,19 @@ class JobTracker {
             return null;
         } catch (e) {
             console.error("❌ Token parse error:", e);
+            localStorage.removeItem('token');
             return null;
         }
     }
 
-    // PROTECT PAGE FUNCTIONALITY RESTORED
+    // PROTECT PAGE FUNCTIONALITY - FIXED LOGIN URL
     redirectToLogin() {
         document.body.innerHTML = `
             <div style="
                 display: flex; flex-direction: column; align-items: center; 
                 justify-content: center; height: 100vh; text-align: center;
                 background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
-                font-family: -apple-system, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             ">
                 <div style="
                     background: white; padding: 3rem; border-radius: 24px; 
@@ -54,7 +54,7 @@ class JobTracker {
                     <i class="fas fa-lock" style="font-size: 4rem; color: #3b82f6; margin-bottom: 1rem;"></i>
                     <h2 style="color: #1e293b; margin-bottom: 1rem;">Authentication Required</h2>
                     <p style="color: #64748b; margin-bottom: 2rem;">Please login to access your job dashboard</p>
-                    <a href="https://ai-resume-analyzer-frontend.vercel.app/login/" style="
+                    <a href="/login/" style="
                         background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
                         color: white; padding: 1rem 2rem; border-radius: 16px; 
                         text-decoration: none; font-weight: 700; display: inline-block;
@@ -66,96 +66,85 @@ class JobTracker {
         throw new Error("Authentication required");
     }
 
-    // COMPLETE API CALL WITH PROTECTION
+    // COMPLETE API CALL WITH FULL DEBUGGING
     async apiCall(endpoint, options = {}) {
         const token = localStorage.getItem("token");
         if (!token || !this.userId) {
             this.showToast("Session expired. Please login again", "error");
-            setTimeout(() => {
-                // login page on Vercel frontend
-                window.location.href = "/login/";
-            }, 2000);
+            setTimeout(() => window.location.href = "/login/", 2000);
             throw new Error("Not authenticated");
         }
 
         const config = {
             headers: {
                 "Content-Type": "application/json",
-                "X-User-ID": this.userId,          // REAL USER ID
-                Authorization: `Bearer ${token}`,  // JWT TOKEN
+                "X-User-ID": this.userId,
+                "Authorization": `Bearer ${token}`,
             },
             ...options,
         };
 
         try {
-            console.log("🔗 API:", `${this.API_BASE}/jobs${endpoint}`, {
-                userId: this.userId,
-            });
-            const response = await fetch(
-                `${this.API_BASE}/jobs${endpoint}`,
-                config
-            );
-
+            const url = `${this.API_BASE}/jobs${endpoint}`;
+            console.log("🔗 API CALL:", url, { userId: this.userId, method: options.method || 'GET' });
+            
+            const response = await fetch(url, config);
             const contentType = response.headers.get("content-type");
+            const responseText = await response.text();
+            
+            console.log("📡 Response:", response.status, contentType?.includes("application/json") ? 'JSON' : 'HTML', 
+                       responseText.substring(0, 200));
+
             if (!contentType?.includes("application/json")) {
-                const text = await response.text();
-                console.error("❌ HTML RESPONSE:", text.substring(0, 200));
-                if (response.status === 401 || response.status === 403) {
-                    this.showToast("Session expired. Redirecting...", "error");
-                    setTimeout(() => {
-                        window.location.href = "/login/";
-                    }, 1500);
+                console.error("❌ NON-JSON RESPONSE:", responseText.substring(0, 300));
+                if (response.status >= 400) {
+                    throw new Error(`Server returned HTML (Status: ${response.status})`);
                 }
-                throw new Error(`Server error (${response.status})`);
             }
 
-            const data = await response.json();
+            const data = JSON.parse(responseText);
 
             if (!response.ok) {
+                const errorMsg = data.message || data.error || `HTTP ${response.status}`;
                 if (response.status === 401 || response.status === 403) {
                     this.showToast("Session expired. Redirecting...", "error");
-                    setTimeout(() => {
-                        window.location.href = "/login/";
-                    }, 1500);
+                    setTimeout(() => window.location.href = "/login/", 1500);
                 }
-                throw new Error(data.message || `HTTP ${response.status}`);
+                throw new Error(errorMsg);
             }
             return data;
         } catch (error) {
-            console.error("API Error:", error);
+            console.error("❌ API ERROR:", error);
             this.showToast("Error: " + error.message, "error");
             throw error;
         }
     }
 
-    // ALL ORIGINAL FEATURES + PROTECTION
+    // ALL ORIGINAL FEATURES + SAFETY CHECKS
     init() {
         console.log("✅ JobTracker initialized for user:", this.userId);
 
-        const appliedDate = document.getElementById("appliedDate");
-        if (appliedDate) appliedDate.valueAsDate = new Date();
+        // Safe DOM element access
+        const elements = {
+            appliedDate: document.getElementById("appliedDate"),
+            jobForm: document.getElementById("jobForm"),
+            clearForm: document.getElementById("clearForm"),
+            editForm: document.getElementById("editForm"),
+            deleteJobBtn: document.getElementById("deleteJobBtn"),
+            closeModal: document.getElementById("closeModal")
+        };
 
-        const jobForm = document.getElementById("jobForm");
-        if (jobForm) jobForm.addEventListener("submit", (e) => this.addJob(e));
-
-        const clearForm = document.getElementById("clearForm");
-        if (clearForm) clearForm.addEventListener("click", () => this.clearForm());
+        if (elements.appliedDate) elements.appliedDate.valueAsDate = new Date();
+        if (elements.jobForm) elements.jobForm.addEventListener("submit", (e) => this.addJob(e));
+        if (elements.clearForm) elements.clearForm.addEventListener("click", () => this.clearForm());
 
         document.querySelectorAll(".filter-btn").forEach((btn) => {
-            btn.addEventListener("click", (e) =>
-                this.filterJobs(e.target.dataset.status)
-            );
+            btn.addEventListener("click", (e) => this.filterJobs(e.target.dataset.status));
         });
 
-        const editForm = document.getElementById("editForm");
-        if (editForm) editForm.addEventListener("submit", (e) => this.updateJob(e));
-
-        const deleteJobBtn = document.getElementById("deleteJobBtn");
-        if (deleteJobBtn)
-            deleteJobBtn.addEventListener("click", () => this.deleteJob());
-
-        const closeModal = document.getElementById("closeModal");
-        if (closeModal) closeModal.addEventListener("click", () => this.closeModal());
+        if (elements.editForm) elements.editForm.addEventListener("submit", (e) => this.updateJob(e));
+        if (elements.deleteJobBtn) elements.deleteJobBtn.addEventListener("click", () => this.deleteJob());
+        if (elements.closeModal) elements.closeModal.addEventListener("click", () => this.closeModal());
 
         this.showUserUI();
         this.loadJobs();
@@ -185,9 +174,12 @@ class JobTracker {
                 this.renderJobs(data.jobs || []);
                 this.updateStats(data.stats || {});
                 this.updateActiveFilter(statusFilter);
+            } else {
+                this.renderJobs([]);
             }
         } catch (error) {
-            console.error("Load error:", error);
+            console.error("❌ Load error:", error);
+            this.renderJobs([]);
         } finally {
             this.showLoading(false);
         }
@@ -210,25 +202,23 @@ class JobTracker {
         }
 
         tbody.innerHTML = jobs
-            .map(
-                (job) => `
-            <tr>
-                <td class="font-semibold">${this.escapeHtml(job.company)}</td>
-                <td>${this.escapeHtml(job.position)}</td>
-                <td><span class="status-badge status-${job.status.toLowerCase()}">${job.status}</span></td>
-                <td>${new Date(job.appliedDate).toLocaleDateString()}</td>
-                <td>${this.escapeHtml(job.notes || "-")}</td>
-                <td>
-                    <button class="action-btn" onclick="jobTracker.editJob('${job._id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn delete-btn" onclick="jobTracker.deleteJob('${job._id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `
-            )
+            .map((job) => `
+                <tr>
+                    <td class="font-semibold">${this.escapeHtml(job.company)}</td>
+                    <td>${this.escapeHtml(job.position)}</td>
+                    <td><span class="status-badge status-${job.status?.toLowerCase() || 'pending'}">${job.status || 'Pending'}</span></td>
+                    <td>${job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : '-'}</td>
+                    <td>${this.escapeHtml(job.notes || "-")}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="jobTracker.editJob('${job._id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="jobTracker.deleteJob('${job._id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `)
             .join("");
     }
 
@@ -236,47 +226,38 @@ class JobTracker {
         e.preventDefault();
         const formData = {
             userId: this.userId,
-            company: document.getElementById("company").value.trim(),
-            position: document.getElementById("position").value.trim(),
-            appliedDate: document.getElementById("appliedDate").value,
-            status: document.getElementById("status").value,
-            jobDescription: document
-                .getElementById("jobDescription")
-                .value.trim(),
-            notes: document.getElementById("notes").value.trim(),
+            company: document.getElementById("company")?.value.trim() || '',
+            position: document.getElementById("position")?.value.trim() || '',
+            appliedDate: document.getElementById("appliedDate")?.value || '',
+            status: document.getElementById("status")?.value || 'Applied',
+            jobDescription: document.getElementById("jobDescription")?.value.trim() || '',
+            notes: document.getElementById("notes")?.value.trim() || '',
         };
-        if (!formData.company || !formData.position || !formData.status) {
-            this.showToast("Please fill required fields", "error");
+
+        if (!formData.company || !formData.position) {
+            this.showToast("Please fill company and position", "error");
             return;
         }
+
         try {
             await this.apiCall("", {
                 method: "POST",
                 body: JSON.stringify(formData),
             });
-            this.showToast("✅ Job added!", "success");
+            this.showToast("✅ Job added successfully!", "success");
             this.clearForm();
             this.loadJobs();
         } catch (error) {
-            console.error("Add error:", error);
+            console.error("❌ Add error:", error);
         }
     }
 
     updateStats(stats) {
-        const defaultStats = {
-            Applied: 0,
-            Interviewing: 0,
-            Rejected: 0,
-            Offered: 0,
-        };
-        Object.entries({ ...defaultStats, ...stats }).forEach(
-            ([status, count]) => {
-                const el = document.getElementById(
-                    `${status.toLowerCase()}Count`
-                );
-                if (el) el.textContent = count;
-            }
-        );
+        const defaultStats = { Applied: 0, Interviewing: 0, Rejected: 0, Offered: 0 };
+        Object.entries({ ...defaultStats, ...stats }).forEach(([status, count]) => {
+            const el = document.getElementById(`${status.toLowerCase()}Count`);
+            if (el) el.textContent = count;
+        });
     }
 
     updateActiveFilter(status) {
@@ -286,8 +267,10 @@ class JobTracker {
     }
 
     clearForm() {
-        document.getElementById("jobForm")?.reset();
-        document.getElementById("appliedDate").valueAsDate = new Date();
+        const form = document.getElementById("jobForm");
+        if (form) form.reset();
+        const dateInput = document.getElementById("appliedDate");
+        if (dateInput) dateInput.valueAsDate = new Date();
     }
 
     filterJobs(status) {
@@ -295,69 +278,91 @@ class JobTracker {
     }
 
     editJob(id) {
-        document.getElementById("editJobId").value = id;
-        document.getElementById("editModal").classList.remove("hidden");
-        document.getElementById("editModal").classList.add("show");
+        const editJobId = document.getElementById("editJobId");
+        const editModal = document.getElementById("editModal");
+        if (editJobId) editJobId.value = id;
+        if (editModal) {
+            editModal.classList.remove("hidden");
+            editModal.classList.add("show");
+        }
     }
 
     async updateJob(e) {
         e.preventDefault();
         const id = document.getElementById("editJobId")?.value;
         if (!id) return;
+
         const formData = {
-            status: document.getElementById("editStatus")?.value,
-            notes: document.getElementById("editNotes")?.value.trim(),
+            status: document.getElementById("editStatus")?.value || '',
+            notes: document.getElementById("editNotes")?.value.trim() || '',
         };
+
         try {
             await this.apiCall(`/${id}`, {
                 method: "PUT",
                 body: JSON.stringify(formData),
             });
-            this.showToast("✅ Updated!", "success");
+            this.showToast("✅ Job updated successfully!", "success");
             this.closeModal();
             this.loadJobs();
         } catch (error) {
-            console.error("Update error:", error);
+            console.error("❌ Update error:", error);
         }
     }
 
     async deleteJob(id = document.getElementById("editJobId")?.value) {
-        if (!id || !confirm("Delete this job?")) return;
+        if (!id || !confirm("Delete this job application?")) return;
         try {
             await this.apiCall(`/${id}`, { method: "DELETE" });
-            this.showToast("✅ Deleted!", "success");
+            this.showToast("✅ Job deleted successfully!", "success");
             this.closeModal();
             this.loadJobs();
         } catch (error) {
-            console.error("Delete error:", error);
+            console.error("❌ Delete error:", error);
         }
     }
 
     closeModal() {
-        document.getElementById("editModal").classList.remove("show");
-        document.getElementById("editModal").classList.add("hidden");
+        const editModal = document.getElementById("editModal");
+        if (editModal) {
+            editModal.classList.remove("show");
+            editModal.classList.add("hidden");
+        }
     }
 
     showLoading(show = true) {
-        document
-            .getElementById("loading")
-            ?.classList.toggle("hidden", !show);
-        document
-            .getElementById("mainContent")
-            ?.classList.toggle("hidden", show);
+        const loading = document.getElementById("loading");
+        const mainContent = document.getElementById("mainContent");
+        if (loading) loading.classList.toggle("hidden", !show);
+        if (mainContent) mainContent.classList.toggle("hidden", show);
     }
 
+    // FIXED TOAST - INLINE CSS (Vercel-safe)
     showToast(message, type = "success") {
-        const toast = document.getElementById("toast");
-        if (!toast) return;
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateX(400px); transition: all 0.3s ease;
+        `;
         toast.textContent = message;
-        toast.className = `toast ${type} show`;
-        setTimeout(() => toast.classList.remove("show"), 3000);
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+        
+        // Animate out
+        setTimeout(() => {
+            toast.style.transform = 'translateX(400px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     escapeHtml(text) {
         const div = document.createElement("div");
-        div.textContent = text;
+        div.textContent = text || '';
         return div.innerHTML;
     }
 }
@@ -366,17 +371,16 @@ class JobTracker {
 function logout() {
     if (confirm("Are you sure you want to logout?")) {
         localStorage.clear();
-        // login page on Vercel frontend
         window.location.href = "/login/";
     }
 }
 
-// COMPLETE INITIALIZATION WITH PROTECTION
+// COMPLETE INITIALIZATION
 document.addEventListener("DOMContentLoaded", () => {
     try {
         const jobTracker = new JobTracker();
         window.jobTracker = jobTracker;
-        console.log("✅ JobTracker fully initialized + PROTECTED");
+        console.log("✅ JobTracker fully initialized + PROTECTED ✅");
     } catch (error) {
         console.error("❌ JobTracker init failed:", error);
     }

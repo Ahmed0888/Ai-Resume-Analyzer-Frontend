@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker - AI Resume Analyzer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="jobs.css">
+</head>
+<body>
+    <!-- Navbar - SAME AS RESUMES -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <i class="fas fa-briefcase"></i>
+                <h1>Job Tracker</h1>
+            </div>
+            <div class="nav-right">
+                <a href="/dashboard/" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/resumes/" class="nav-link"><i class="fas fa-file-alt"></i> All Resumes</a>
+                <a href="/jobs/" class="nav-link active"><i class="fas fa-briefcase"></i> Track your Job</a>
+                <a href="/analyzer/" class="nav-link"><i class="fas fa-robot"></i> Analyze Resume with Ai </a>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Login Prompt -->
+        <div id="loginPrompt" class="login-prompt hidden">
+            <i class="fas fa-lock"></i>
+            <h3>Please Login to Continue</h3>
+            <p>Login to manage your job applications</p>
+            <a href="/login/" class="btn-primary">Go to Login</a>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="content-wrapper hidden">
+            <!-- Stats Header - SAME STYLE -->
+            <section class="stats-header">
+                <div class="stats-grid">
+                    <div class="stat-card stat-orange">
+                        <div class="stat-icon"><i class="fas fa-play-circle"></i></div>
+                        <div class="stat-content">
+                            <p>Applied</p>
+                            <div class="stat-number" id="appliedCount">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-blue">
+                        <div class="stat-icon"><i class="fas fa-microphone"></i></div>
+                        <div class="stat-content">
+                            <p>Interviewing</p>
+                            <div class="stat-number" id="interviewingCount">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-red">
+                        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-content">
+                            <p>Rejected</p>
+                            <div class="stat-number" id="rejectedCount">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-green">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-content">
+                            <p>Offered</p>
+                            <div class="stat-number" id="offeredCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Job Form -->
+            <section class="section job-form-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-plus-circle"></i> Add New Job</h2>
+                </div>
+                <form id="jobForm" class="form-grid">
+                    <div class="form-group">
+                        <input type="text" id="company" placeholder="Company Name *" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="position" placeholder="Position *" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="appliedDate" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="status" required>
+                            <option value="">Select Status</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Offered">Offered</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <textarea id="jobDescription" placeholder="Job Description (Optional)"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <textarea id="notes" placeholder="Notes / Interview Details"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Job
+                        </button>
+                        <button type="button" id="clearForm" class="btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Jobs Table -->
+            <section class="section jobs-table-section">
+                <div class="table-header">
+                    <h2 class="section-title"><i class="fas fa-list"></i> Your Applications</h2>
+                    <div class="status-filters">
+                        <button class="filter-btn active" data-status="all">All</button>
+                        <button class="filter-btn" data-status="Applied">Applied</button>
+                        <button class="filter-btn" data-status="Interviewing">Interviewing</button>
+                        <button class="filter-btn" data-status="Offered">Offered</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Position</th>
+                                <th>Status</th>
+                                <th>Date Applied</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <tr class="empty-state">
+                                <td colspan="6">
+                                    <i class="fas fa-briefcase"></i>
+                                    <p>No jobs yet. Add your first application above!</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Job</h3>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editJobId">
+                <div class="form-group">
+                    <select id="editStatus" required>
+                        <option value="Applied">Applied</option>
+                        <option value="Interviewing">Interviewing</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Offered">Offered</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <textarea id="editNotes" placeholder="Update notes..." rows="4"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Update Job</button>
+                    <button type="button" id="deleteJobBtn" class="btn-danger">Delete Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="jobs.js"></script>
+</body>
+</html>

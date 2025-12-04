@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Resume Analyzer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
+                <i class="fas fa-chart-line"></i>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="nav-right">
+                <a href="/dashboard/" class="nav-link active"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/resumes/" class="nav-link"><i class="fas fa-file-alt"></i> All Resumes</a>
+                <a href="/jobs/" class="nav-link"><i class="fas fa-briefcase"></i> Track your Job</a>
+                <a href="/analyzer/" class="nav-link"><i class="fas fa-robot"></i> Analyze Resume with Ai </a>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <p>Total Resumes</p>
+                    <div class="stat-number" id="totalResumes">12</div>
+                </div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <p>Avg Score</p>
+                    <div class="stat-number" id="avgScore">78</div>
+                </div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-content">
+                    <p>Job Applications</p>
+                    <div class="stat-number" id="totalJobs">5</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-actions">
+            <div class="section-header">
+                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            </div>
+            <div class="action-buttons">
+                <a href="/analyzer/" class="btn-primary">
+                    <i class="fas fa-rocket"></i> Analyze New Resume
+                </a>
+                <a href="/jobs/" class="btn-primary">
+                    <i class="fas fa-plus"></i> Track New Job
+                </a>
+                <a href="/resumes/" class="btn-primary">
+                    <i class="fas fa-list"></i> View My Resumes
+                </a>
+            </div>
+        </section>
+
+        <section class="recent-activity">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> Recent Activity</h2>
+            </div>
+            <div class="activity-list" id="activityList">
+                <!-- Dynamic content -->
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>protectPage()</script>
+</body>
+</html>

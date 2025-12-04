@@ -73,7 +73,7 @@ class JobTracker {
             this.showToast("Session expired. Please login again", "error");
             setTimeout(() => {
                 // login page on Vercel frontend
-                window.location.href = "https://ai-resume-analyzer-frontend.vercel.app/login/";
+                window.location.href = "/login/";
             }, 2000);
             throw new Error("Not authenticated");
         }
@@ -103,7 +103,7 @@ class JobTracker {
                 if (response.status === 401 || response.status === 403) {
                     this.showToast("Session expired. Redirecting...", "error");
                     setTimeout(() => {
-                        window.location.href = "https://ai-resume-analyzer-frontend.vercel.app/login/";
+                        window.location.href = "/login/";
                     }, 1500);
                 }
                 throw new Error(`Server error (${response.status})`);
@@ -115,7 +115,7 @@ class JobTracker {
                 if (response.status === 401 || response.status === 403) {
                     this.showToast("Session expired. Redirecting...", "error");
                     setTimeout(() => {
-                        window.location.href = "https://ai-resume-analyzer-frontend.vercel.app/login/";
+                        window.location.href = "/login/";
                     }, 1500);
                 }
                 throw new Error(data.message || `HTTP ${response.status}`);
@@ -367,7 +367,7 @@ function logout() {
     if (confirm("Are you sure you want to logout?")) {
         localStorage.clear();
         // login page on Vercel frontend
-        window.location.href = "https://ai-resume-analyzer-frontend.vercel.app/login/";
+        window.location.href = "/login/";
     }
 }
 

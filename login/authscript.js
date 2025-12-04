@@ -29,7 +29,9 @@ async function apiRequest(endpoint, method, bodyObj) {
       data = {};
     }
 
-    if (!res.ok || !data.success) {
+    console.log("API RESPONSE:", res.status, data);
+
+    if (!res.ok || data.success === false) {
       throw new Error(data.message || `Request failed (status ${res.status})`);
     }
 
@@ -69,8 +71,8 @@ async function loginUser() {
 
     showMessage("Login successful! Redirecting...");
     setTimeout(() => {
-      // ✅ VERCEL FRONTEND URL - dashboard page pe redirect
-      window.location.href = "https://ai-resume-analyzer-frontend.vercel.app/dashboard/";
+      // ✅ relative path – local aur vercel dono par /dashboard/index.html khul jayega
+      window.location.href = "/dashboard/";
     }, 500);
   } catch (err) {
     showMessage(err.message, true);

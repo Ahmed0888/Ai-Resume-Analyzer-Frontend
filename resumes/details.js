@@ -24,16 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/resumes/';
     }
 
-    // Event listeners with null checks
-    const backBtn = document.getElementById('backBtn');
-    const printBtn = document.getElementById('printBtn');
-    const copyImproved = document.getElementById('copyImproved');
-    const downloadImproved = document.getElementById('downloadImproved');
-    
-    if (backBtn) backBtn.addEventListener('click', () => window.location.href = '/resumes/');
-    if (printBtn) printBtn.addEventListener('click', () => window.print());
-    if (copyImproved) copyImproved.addEventListener('click', copyImprovedResume);
-    if (downloadImproved) downloadImproved.addEventListener('click', downloadImproved);
+  // Event listeners with null checks
+const backBtn = document.getElementById('backBtn');
+const printBtn = document.getElementById('printBtn');
+const copyImproved = document.getElementById('copyImproved');
+const downloadImprovedBtn = document.getElementById('downloadImproved');
+
+if (backBtn) backBtn.addEventListener('click', () => window.location.href = '/resumes/');
+if (printBtn) printBtn.addEventListener('click', () => window.print());
+if (copyImproved) copyImproved.addEventListener('click', copyImprovedResume);
+if (downloadImprovedBtn) downloadImprovedBtn.addEventListener('click', handleDownloadImproved);
+
 });
 
 async function apiRequest(endpoint, options = {}) {
@@ -154,7 +155,26 @@ function copyImprovedResume() {
         });
 }
 
-function downloadImproved() {
+// function downloadImproved() {
+//     const text = currentResume.aiImprovedText || '';
+//     if (!text) {
+//         showToast('No improved resume available', 'error');
+//         return;
+//     }
+    
+//     const blob = new Blob([text], { type: 'text/plain' });
+//     const url = URL.createObjectURL(blob);
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.download = `improved-resume-${currentResume._id || Date.now()}.txt`;
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//     URL.revokeObjectURL(url);
+//     showToast('✅ Improved resume downloaded!', 'success');
+// }
+
+function handleDownloadImproved() {
     const text = currentResume.aiImprovedText || '';
     if (!text) {
         showToast('No improved resume available', 'error');
@@ -172,6 +192,8 @@ function downloadImproved() {
     URL.revokeObjectURL(url);
     showToast('✅ Improved resume downloaded!', 'success');
 }
+
+
 
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
